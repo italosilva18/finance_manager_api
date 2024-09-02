@@ -38,4 +38,4 @@ Antes de iniciar, certifique-se de ter o Docker e o Docker Compose instalados em
 
    ```bash
    git clone https://github.com/seu-usuario/finance-manager-api.git
-   cd finance-manager-api ´´´
+   cd finance-manager-api´´´
