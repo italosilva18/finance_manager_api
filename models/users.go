@@ -1,9 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type User struct {
-	ID           string    `json:"id" gorm:"type:uuid;primary_key"`
+	ID           uuid.UUID `json:"id" gorm:"type:uuid;primary_key"`
 	Username     string    `json:"username" gorm:"type:varchar(255);unique;not null"`
 	PasswordHash string    `json:"-" gorm:"column:password_hash;type:text;not null"` // Coluna correta para armazenar o hash da senha
 	Email        string    `json:"email" gorm:"type:varchar(255);unique;not null"`

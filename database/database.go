@@ -11,13 +11,21 @@ import (
 
 var DB *gorm.DB
 
-func InitDB() {
+// Initialize initializes the database connection and performs migrations
+func Initialize() {
 	var err error
+
+	// Conecte-se ao banco de dados usando o GORM e o driver PostgreSQL
 	DB, err = gorm.Open(postgres.Open(config.DSN), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("Falha ao conectar ao banco de dados: %v", err)
 	}
 
-	// Migração automática das tabelas
-	DB.AutoMigrate(&models.Account{}, &models.Category{}, &models.Transaction{}, &models.User{}, &models.Budget{})
+	// Realize as migrações automáticas para criar as tabelas, se necessário
+	err = DB.AutoMigrate(&models.User{}, &models.Account{}, &models.Category{}, &models.Transaction{}, &models.Budget{})
+	if err != nil {
+		log.Fatalf("Falha ao migrar banco de dados: %v", err)
+	}
+
+	log.Println("Conexão com o banco de dados estabelecida e migrações aplicadas")
 }

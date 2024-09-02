@@ -4,44 +4,52 @@ import (
 	"finance_manager_api/handlers"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func InitRoutes(e *echo.Echo) {
-	// Rotas para transações
-	e.GET("/transactions", handlers.GetTransactions)
-	e.POST("/transactions", handlers.CreateTransaction)
-	e.PUT("/transactions/:id", handlers.UpdateTransaction)
-	e.DELETE("/transactions/:id", handlers.DeleteTransaction)
-	e.GET("/transactions/:id", handlers.GetTransactionByID)
+	// Rota de login (não protegida)
+	e.POST("/users/login", handlers.LoginUser)
 
-	// Rotas para orçamentos
-	e.GET("/budgets", handlers.GetBudgets)
-	e.POST("/budgets", handlers.CreateBudget)
-	e.PUT("/budgets/:id", handlers.UpdateBudget)
-	e.DELETE("/budgets/:id", handlers.DeleteBudget)
+	// Grupo de rotas protegidas por JWT
+	api := e.Group("/api")
+	api.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningKey: []byte("dX6N2!mc5pZ9@k1Y3QwVr7HbTx$zA8J0"),
+	}))
 
-	// Rotas para usuários
-	e.GET("/users", handlers.GetUsers)
-	e.POST("/users", handlers.CreateUser)
-	e.PUT("/users/:id", handlers.UpdateUser)
-	e.DELETE("/users/:id", handlers.DeleteUser)
+	// Usuários
+	api.GET("/users", handlers.GetUsers)
+	api.POST("/users", handlers.CreateUser)
+	api.GET("/users/:id", handlers.GetUserByID)
+	api.PUT("/users/:id", handlers.UpdateUser)
+	api.DELETE("/users/:id", handlers.DeleteUser)
 
-	// Rotas para categorias
-	e.GET("/categories", handlers.GetCategories)
-	e.POST("/categories", handlers.CreateCategory)
-	e.PUT("/categories/:id", handlers.UpdateCategory)
-	e.DELETE("/categories/:id", handlers.DeleteCategory)
+	// Contas
+	api.POST("/accounts", handlers.CreateAccount)
+	api.GET("/accounts", handlers.GetAccounts)
+	api.GET("/accounts/:id", handlers.GetAccountByID)
+	api.PUT("/accounts/:id", handlers.UpdateAccount)
+	api.DELETE("/accounts/:id", handlers.DeleteAccount)
 
-	// Rotas para contas
-	e.GET("/accounts", handlers.GetAccounts)
-	e.POST("/accounts", handlers.CreateAccount)
-	e.PUT("/accounts/:id", handlers.UpdateAccount)
-	e.DELETE("/accounts/:id", handlers.DeleteAccount)
+	// Categorias
+	api.POST("/categories", handlers.CreateCategory)
+	api.GET("/categories", handlers.GetCategories)
+	api.GET("/categories/:id", handlers.GetCategoryByID)
+	api.PUT("/categories/:id", handlers.UpdateCategory)
+	api.DELETE("/categories/:id", handlers.DeleteCategory)
 
-	// Rotas para budgets
-	e.GET("/budgets", handlers.GetBudgets)
-	e.POST("/budgets", handlers.CreateBudget)
-	e.PUT("/budgets/:id", handlers.UpdateBudget)
-	e.DELETE("/budgets/:id", handlers.DeleteBudget)
+	// Transações
+	api.POST("/transactions", handlers.CreateTransaction)
+	api.GET("/transactions", handlers.GetTransactions)
+	api.GET("/transactions/:id", handlers.GetTransactionByID)
+	api.PUT("/transactions/:id", handlers.UpdateTransaction)
+	api.DELETE("/transactions/:id", handlers.DeleteTransaction)
+
+	// Orçamentos
+	api.POST("/budgets", handlers.CreateBudget)
+	api.GET("/budgets", handlers.GetBudgets)
+	api.GET("/budgets/:id", handlers.GetBudgetByID)
+	api.PUT("/budgets/:id", handlers.UpdateBudget)
+	api.DELETE("/budgets/:id", handlers.DeleteBudget)
 
 }

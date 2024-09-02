@@ -53,3 +53,16 @@ func DeleteCategory(c echo.Context) error {
 	}
 	return c.NoContent(http.StatusNoContent)
 }
+
+func GetCategoryByID(c echo.Context) error {
+	id := c.Param("id")
+	var category models.Category
+
+	if err := database.DB.First(&category, "id = ?", id).Error; err != nil {
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"error": "Category not found",
+		})
+	}
+
+	return c.JSON(http.StatusOK, category)
+}

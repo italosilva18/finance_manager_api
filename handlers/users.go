@@ -32,7 +32,7 @@ func CreateUser(c echo.Context) error {
 	user.PasswordHash = string(hashedPassword)
 
 	// Gerar ID do usuário
-	user.ID = uuid.New().String()
+	user.ID = uuid.New() // Use o tipo correto de UUID
 
 	if err := database.DB.Create(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
@@ -51,6 +51,15 @@ func UpdateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	// Atualiza a senha somente se um novo valor for fornecido
+	if user.PasswordHash != "" {
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.PasswordHash), bcrypt.DefaultCost)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, "Erro ao criar hash da senha")
+		}
+		user.PasswordHash = string(hashedPassword)
+	}
+
 	if err := database.DB.Save(&user).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
@@ -63,4 +72,19 @@ func DeleteUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 	return c.NoContent(http.StatusNoContent)
+}
+
+func GetUserByID(c echo.Context) error {
+	id := c.Param("id")
+	var user models.User
+
+	// Busca o usuário no banco de dados usando o ID fornecido
+	if err := database.DB.First(&user, "id = ?", id).Error; err != nil {
+		return c.JSON(http.StatusNotFound, echo.Map{
+			"error": "User not found",
+		})
+	}
+
+	// Retorna o usuário encontrado
+	return c.JSON(http.StatusOK, user)
 }
